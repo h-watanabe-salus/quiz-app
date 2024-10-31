@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>クイズアプリ</title>
+</head>
+<body>
+    <h1>クイズアプリ</h1>
+    <div id="quiz-container">
+        <p id="question"></p>
+        <div id="choices"></div>
+    </div>
+    <button onclick="nextQuestion()">次の問題へ</button>
+    <script>
+        const API_URL = 'YOUR_GAS_WEB_APP_URL'; // WebアプリのURL
+
+        let currentQuestionIndex = 0;
+        let questions = [];
+
+        async function fetchQuizData() {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            questions = data.questions;
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                document.getElementById('question').textContent = 'クイズ終了！';
+                document.getElementById('choices').innerHTML = '';
+                return;
+            }
+            const { question, choices } = questions[currentQuestionIndex];
+            document.getElementById('question').textContent = question;
+            const choicesContainer = document.getElementById('choices');
+            choicesContainer.innerHTML = '';
+
+            choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.textContent = choice;
+                button.onclick = () => checkAnswer(choice);
+                choicesContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedChoice) {
+            const correctAnswer = questions[currentQuestionIndex].answer;
+            const explanation = questions[currentQuestionIndex].explanation;
+            if (selectedChoice === correctAnswer) {
+                alert('正解です！');
+            } else {
+                alert(`不正解です。正解は「${correctAnswer}」です。\n${explanation}`);
+            }
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        // 初期データ取得
+        fetchQuizData();
+    </script>
+</body>
+</html>
